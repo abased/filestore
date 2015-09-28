@@ -13,6 +13,7 @@
 
     <properties>
         <scala.version>2.10.4</scala.version>
+        <murray.library.version>3.1.1</murray.library.version>
     </properties>
 
     <dependencies>
@@ -21,6 +22,12 @@
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
+        </dependency>
+        <!-- SoSACorp -->
+        <dependency>
+            <groupId>com.sosacorp</groupId>
+            <artifactId>murray-library</artifactId>
+            <version>${murray.library.version}</version>
         </dependency>
     </dependencies>
 
