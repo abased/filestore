@@ -1,0 +1,36 @@
+# IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Target Directories
+target/
+
+# Eclipse
+.settings
+
+# play-maven-plugin
+lib/
+
+# Emacs
+*~
+
+# Output Folders
+target/
+*.pyc
+
+# Log Files
+*.log
+
+# MacOSX
+.DS_Store
+/.project
+
+# Uploads for VMS
+tools-parent/virtual-images/src/main/resources/demovms/software/*.zip
+tools-parent/virtual-images/src/main/resources/demovms/software/*.rpm
+
+# Rogue data directories
+graph-parent/graph-common/data/
+integration-test-parent/core-services-integration-test/data/

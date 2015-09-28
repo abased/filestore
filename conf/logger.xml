@@ -1,0 +1,45 @@
+<!-- scan="true" does not make sense for a test, but does for a web app -->
+<configuration debug="false" scan="true">
+    <!--
+    To debug logging, use:
+      import ch.qos.logback.classic.LoggerContext
+      import org.slf4j.LoggerFactory
+      import ch.qos.logback.core.util.StatusPrinter
+      StatusPrinter.print(LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext])
+      -->
+    <!-- always good to activate OnConsoleStatusListener if you are having logging woes -->
+    <!-- uncomment the following for some more logback feedback -->
+    <!--<statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />-->
+
+    <!-- If you want to ignore logback warnings and info startup messages -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./target/sosa.log</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>sosa.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.sosacorp" level="info"/>
+    <logger name="com.sosacorp.play.websockets" level="trace"/>
+
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

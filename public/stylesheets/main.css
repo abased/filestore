@@ -1,0 +1,56 @@
+
+.p {
+    margin-top:16px;
+}
+
+.p8 {
+    margin-top: 8px;
+}
+
+.p16 {
+    margin-top: 16px;
+}
+
+.p32 {
+    margin-top:32px;
+}
+
+.title {
+    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace !important;
+    font-weight: bold;
+}
+
+/* Gremlin Console */
+
+#gremlin-console .console {
+    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace !important;
+}
+
+#gremlin-console .results {
+    background-color: #EEE;
+    color: #006400;
+    font-weight: bold;
+    width:540px;
+    height:360px;
+}
+
+#gremlin-console .example {
+    cursor: pointer;
+    font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace !important;
+}
+
+#gremlin-console .clickable {
+    cursor: pointer;
+}
+
+#gremlin-console .success-color {
+    color: #006400;
+}
+
+#gremlin-console .error-color {
+    color: #8b0000;
+}
+
+#gremlin-console .throbber {
+    margin-left:32px;
+}
