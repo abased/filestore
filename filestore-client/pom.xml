@@ -13,7 +13,9 @@
 
     <properties>
         <scala.version>2.10.4</scala.version>
+        <scala.short.version>2.10</scala.short.version>
         <murray.library.version>3.1.1</murray.library.version>
+        <play2.version>2.2.6</play2.version>
     </properties>
 
     <dependencies>
@@ -28,6 +30,18 @@
             <groupId>com.sosacorp</groupId>
             <artifactId>murray-library</artifactId>
             <version>${murray.library.version}</version>
+        </dependency>
+        <!-- Dispatch -->
+        <dependency>
+            <groupId>net.databinder.dispatch</groupId>
+            <artifactId>dispatch-core_${scala.short.version}</artifactId>
+            <version>0.11.2</version>
+        </dependency>
+        <!-- PLAY JSON -->
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-json_${scala.short.version}</artifactId>
+            <version>${play2.version}</version>
         </dependency>
     </dependencies>
 
@@ -101,6 +115,51 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+        <repository>
+            <id>TypeSafeRepository</id>
+            <name>TypeSafe Repository</name>
+            <url>http://repo.typesafe.com/typesafe/releases</url>
+        </repository>
+        <repository>
+            <id>ScalaToolsMaven2Repository</id>
+            <name>Scala-Tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </repository>
+        <repository>
+            <id>twttr</id>
+            <name>twttr</name>
+            <url>http://maven.twttr.com</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>TypeSafeRepository</id>
+            <name>TypeSafe Repository</name>
+            <url>http://repo.typesafe.com/typesafe/releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>twttr</id>
+            <name>twttr</name>
+            <url>http://maven.twttr.com</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>scala-tools.org</id>
+            <name>Scala-tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <distributionManagement>
         <repository>

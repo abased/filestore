@@ -4,3 +4,8 @@
 
 # -- FILESTORE
 
+GET        /api/read        filestore.controllers.api.FilestoreApi.read(path)
+GET        /api/size        filestore.controllers.api.FilestoreApi.size(path)
+GET        /api/list        filestore.controllers.api.FilestoreApi.list(path, prefix:Option[String])
+GET        /api/exists      filestore.controllers.api.FilestoreApi.exists(path)
+POST       /api/write       filestore.controllers.api.FilestoreApi.write(path)
