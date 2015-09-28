@@ -7,6 +7,6 @@ import com.sosacorp.property.PropertyLoader
  */
 trait FilestoreProperties extends PropertyLoader {
 
-  override def propertyFilenameList = super.propertyFilenameList ::: List("filetore.properties")
+  override def propertyFilenameList = super.propertyFilenameList ::: List("filestore.properties")
 
 }
