@@ -13,16 +13,21 @@
         <play2.version>2.2.6</play2.version>
         <scala.version>2.10.4</scala.version>
         <scala.short.version>2.10</scala.short.version>
+        <murray.library.version>3.1.1</murray.library.version>
     </properties>
 
     <dependencies>
         <!-- SoSACorp -->
-
+        <dependency>
+            <groupId>com.sosacorp</groupId>
+            <artifactId>murray-library</artifactId>
+            <version>${murray.library.version}</version>
+        </dependency>
         <!-- Scala, Play -->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.10.4</version>
+            <version>${scala.version}</version>
         </dependency>
         <dependency>
             <groupId>com.typesafe.play</groupId>
