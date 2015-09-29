@@ -8,10 +8,9 @@ import com.sosacorp.property.PropertyLoader
 import dispatch._
 import org.apache.commons.io.IOUtils
 import play.api.libs.json._
-import play.api.libs.ws.WS
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, _}
+import scala.concurrent.Future
 
 /**
  * Created by nickdeyoung on 9/28/15.
