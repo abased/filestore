@@ -16,7 +16,7 @@ import scala.concurrent.{Future, _}
 /**
  * Created by nickdeyoung on 9/28/15.
  */
-object FilestoreClient extends PropertyLoader with Logging {
+class FilestoreClient extends PropertyLoader with Logging {
 
   val filestoreHost = getPropertyReq("filestore.host")
   val filestorePort = getPropertyReq("filestore.port").toInt
@@ -70,7 +70,7 @@ object FilestoreClient extends PropertyLoader with Logging {
   def write(source:InputStream, dest:String):Future[Either[String,Long]] = {
     import play.api.Play.current
     val ba = IOUtils.toByteArray(source)
-    val resp = WS.url(s"$filestoreHost:$filestorePort").withQueryString( ("dest", dest)).post(ba)
+    val resp = WS.url(s"http://$filestoreHost:$filestorePort/api/write").withQueryString( ("path", dest)).post(ba)
 
     resp.flatMap { r =>
       r.status match {
@@ -78,7 +78,7 @@ object FilestoreClient extends PropertyLoader with Logging {
           size(dest)
         case _ =>
           future {
-            Left(r.statusText)
+            Left(r.status + " - " + r.statusText)
           }
       }
     }
