@@ -68,18 +68,29 @@ class FilestoreClient extends PropertyLoader with Logging {
   }
 
   def write(source:InputStream, dest:String):Future[Either[String,Long]] = {
-    import play.api.Play.current
-    val ba = IOUtils.toByteArray(source)
-    val resp = WS.url(s"http://$filestoreHost:$filestorePort/api/write").withQueryString( ("path", dest)).post(ba)
 
-    resp.flatMap { r =>
-      r.status match {
-        case 200 =>
-          size(dest)
+    logger.info(s"Attempting to write the stream to $dest")
+    val ba = IOUtils.toByteArray(source)
+
+    val req = Http((host(filestoreHost, filestorePort) / "api" / "write" <<? List(("path", dest))).POST.setBody(ba) OK as.String).either
+
+    // handle the Left[Throwable] into a Left[String]
+    // won't execute if Right[String]
+    val e = for ( e <- req.left ) yield {
+      val msg = s"Attempt to write $dest failed with exception: ${e.getMessage}"
+      logger.error(msg)
+      msg
+    }
+
+    // handle the Right[String] into a Right[Long]
+    // won't execute if Left[String]
+    for ( s <- e.right ) yield {
+      val json = Json.parse(s)
+      json match {
+        case x:JsNumber =>
+          x.value.toLong
         case _ =>
-          future {
-            Left(r.status + " - " + r.statusText)
-          }
+          -1 // :(
       }
     }
 
