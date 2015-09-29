@@ -1,4 +1,4 @@
-package com.sosacorp.content.common
+package com.sosacorp.content.file
 
 import com.sosacorp.property.PropertyLoader
 
