@@ -2,16 +2,16 @@ package com.sosacorp.filestore
 
 
 import java.io.{ByteArrayInputStream, InputStream}
-import java.nio.charset.StandardCharsets
 
-
-import dispatch._, Defaults._
 import com.sosacorp.logging.Logging
 import com.sosacorp.property.PropertyLoader
+import dispatch._
+import org.apache.commons.io.IOUtils
 import play.api.libs.json._
+import play.api.libs.ws.WS
 
-import scala.concurrent.Future
-
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, _}
 
 /**
  * Created by nickdeyoung on 9/28/15.
@@ -24,16 +24,20 @@ object FilestoreClient extends PropertyLoader with Logging {
   def read(path:String):Future[Either[String, InputStream]] = {
     logger.info(s"Attempting to read the file at $path from the file store")
 
-    val req = Http(host(filestoreHost, filestorePort) / "api" / "read" <<? List(("path", path)) OK as.String).either
+    val req = Http(host(filestoreHost, filestorePort) / "api" / "read" <<? List(("path", path)) OK as.Bytes).either
 
+    // handle the Left[Throwable] into a Left[String]
+    // won't execute if Right[Array[Byte]]]
     val e = for ( e <- req.left ) yield {
       val msg = s"Attempt to read $path failed with exception: ${e.getMessage}"
       logger.error(msg)
       msg
     }
 
+    // handle the Right[Array[Byte]] into a Right[InputStream]
+    // won't execute if Left[String]
     for ( s <- e.right ) yield {
-      new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8)) // WTF, HOW THE HELL DO I KNOW THE CHARSET OF THE FILE THAT WE SAVED ??? THIS IS A MAJOR FLAW, THE FILE STORE MUST SAVE THIS SOME HOW
+      new ByteArrayInputStream(s)
     }
   }
 
@@ -42,32 +46,61 @@ object FilestoreClient extends PropertyLoader with Logging {
 
     val req = Http(host(filestoreHost, filestorePort) / "api" / "size" <<? List(("path", path)) OK as.String).either
 
+    // handle the Left[Throwable] into a Left[String]
+    // won't execute if Right[String]
     val e = for ( e <- req.left ) yield {
       val msg = s"Attempt to get size of $path failed with exception: ${e.getMessage}"
       logger.error(msg)
       msg
     }
 
+    // handle the Right[String] into a Right[Long]
+    // won't execute if Left[String]
     for ( s <- e.right ) yield {
-      s.toInt
+      val json = Json.parse(s)
+      json match {
+        case x:JsNumber =>
+          x.value.toLong
+        case _ =>
+          -1 // :(
+      }
     }
   }
 
   def write(source:InputStream, dest:String):Future[Either[String,Long]] = {
-    ???
+    import play.api.Play.current
+    val ba = IOUtils.toByteArray(source)
+    val resp = WS.url(s"$filestoreHost:$filestorePort").withQueryString( ("dest", dest)).post(ba)
+
+    resp.flatMap { r =>
+      r.status match {
+        case 200 =>
+          size(dest)
+        case _ =>
+          future {
+            Left(r.statusText)
+          }
+      }
+    }
+
   }
+
 
   def list(dir:String, prefixOpt:Option[String]):Future[Either[String, List[String]]] = {
     logger.info(s"Attempting to list the directory at $dir from the file store")
 
     val req = Http(host(filestoreHost, filestorePort) / "api" / "list" <<? List(("path", dir), ("prefix", prefixOpt.getOrElse(""))) OK as.String).either
 
+    // handle the Left[Throwable] into a Left[String]
+    // won't execute if Right[String]
     val e = for ( e <- req.left ) yield {
       val msg = s"Attempt to list $dir failed with exception: ${e.getMessage}"
       logger.error(msg)
       msg
     }
 
+    // handle the Right[String] into a Right[List[String]]
+    // won't execute if Left[String]
     for (s <- e.right) yield {
       val json = Json.parse(s)
       json match {
@@ -83,12 +116,16 @@ object FilestoreClient extends PropertyLoader with Logging {
 
     val req = Http(host(filestoreHost, filestorePort) / "api" / "exists" <<? List(("path", path)) OK as.String).either
 
+    // handle the Left[Throwable] into a Left[String]
+    // won't execute if Right[String]
     val e = for ( e <- req.left ) yield {
       val msg = s"Attempting to see if file at $path exists in the file store failed with exception: ${e.getMessage}"
       logger.error(msg)
       msg
     }
 
+    // handle the Right[String] into a Right[Boolean]
+    // won't execute if Left[String]
     for (s <- e.right) yield {
       val json = Json.parse(s)
       json match {

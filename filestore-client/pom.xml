@@ -37,11 +37,28 @@
             <artifactId>dispatch-core_${scala.short.version}</artifactId>
             <version>0.11.2</version>
         </dependency>
+        <dependency>
+            <groupId>net.databinder</groupId>
+            <artifactId>dispatch-mime_2.10</artifactId>
+            <version>0.8.10</version>
+        </dependency>
+        <!-- APACHE -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
         <!-- PLAY JSON -->
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-json_${scala.short.version}</artifactId>
             <version>${play2.version}</version>
+        </dependency>
+        <!-- PLAY WS -->
+        <dependency>
+            <groupId>com.typesafe.play</groupId>
+            <artifactId>play-ws_${scala.short.version}</artifactId>
+            <version>2.4.3</version>
         </dependency>
     </dependencies>
 
