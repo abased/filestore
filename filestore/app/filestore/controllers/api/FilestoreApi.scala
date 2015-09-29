@@ -3,7 +3,7 @@ package filestore.controllers.api
 import java.io.{FileInputStream, InputStream}
 
 import com.sosacorp.binder.Refs
-import com.sosacorp.content.file.FileStore
+import filestore.FileStore
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.json.Json
 import play.api.mvc._

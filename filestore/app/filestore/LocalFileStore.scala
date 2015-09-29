@@ -1,12 +1,11 @@
-package com.sosacorp.content.file
+package filestore
 
-import java.io.{FileInputStream, File, InputStream}
-
-import scala.collection.convert.WrapAsScala
-
-import org.apache.commons.io.FileUtils
+import java.io.{File, FileInputStream, InputStream}
 
 import com.sosacorp.property.PropertyLoader
+import org.apache.commons.io.FileUtils
+
+import scala.collection.convert.WrapAsScala
 
 class LocalFileStore extends FileStore with WrapAsScala {
   self: PropertyLoader  =>

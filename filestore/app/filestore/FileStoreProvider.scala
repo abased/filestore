@@ -1,6 +1,5 @@
-package com.sosacorp.content.file
+package filestore
 
-import com.sosacorp.content.file.FilestoreProperties
 import com.sosacorp.property.PropertyLoader
 
 object FileStoreType extends Enumeration {

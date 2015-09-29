@@ -1,7 +1,7 @@
 package filestore
 
 import com.sosacorp.binder.Binder
-import com.sosacorp.content.file.binder.FileServiceModule
+import filestore.binder.FileServiceModule
 import play.api.mvc.WithFilters
 
 

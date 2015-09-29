@@ -1,13 +1,12 @@
-package com.sosacorp.content.file
+package filestore
 
-import java.io.{ByteArrayOutputStream, InputStream}
+import java.io.InputStream
 import java.security.PrivilegedExceptionAction
-
 
 import com.sosacorp.property.PropertyLoader
 import org.apache.commons.io.IOUtils
 import org.apache.hadoop.conf.Configuration
-import org.apache.hadoop.fs.{RemoteIterator, FSDataInputStream, FileSystem, Path => HadoopPath}
+import org.apache.hadoop.fs.{FileSystem, RemoteIterator, Path => HadoopPath}
 import org.apache.hadoop.security.UserGroupInformation
 
 class HadoopFileStore extends FileStore {

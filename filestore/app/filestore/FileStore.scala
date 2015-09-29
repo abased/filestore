@@ -1,7 +1,10 @@
-package com.sosacorp.content.file
+package filestore
 
 import java.io.InputStream
 
+/**
+ * Created by nickdeyoung on 9/29/15.
+ */
 trait FileStore {
 
   def read(path: String) : Option[InputStream]
@@ -10,4 +13,3 @@ trait FileStore {
   def exists(path: String): Boolean
   def size(path: String): Option[Long]
 }
-
