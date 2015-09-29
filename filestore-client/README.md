@@ -1,24 +1,24 @@
-murray-library
+filestore-client
 ==============
 
-the murray library is the foundation upon which all microservices are to be build
+the filestore-client is a wrapper around the filestore REST api, 
+use it in other scala applications to send files to an out of process running file store
 
 
 ## IntelliJ Set-Up
 
 File -> Open -> pom.xml
 
-## Custom Properties
-
-    /ets/sosacorp/email.client.properties
-
-        smtp.host=localhost
-        smtp.port=25
-
 
 ## Build
 
 > mvn clean install
+
+## Test
+
+> mvn test -P it
+> requires running filestore
+
 
 
 
