@@ -11,6 +11,7 @@ import play.api.libs.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Success, Failure, Try}
 
 /**
  * Created by nickdeyoung on 9/28/15.
@@ -55,14 +56,21 @@ class FilestoreClient extends PropertyLoader with Logging {
 
     // handle the Right[String] into a Right[Long]
     // won't execute if Left[String]
-    for ( s <- e.right ) yield {
-      val json = Json.parse(s)
-      json match {
-        case x:JsNumber =>
-          x.value.toLong
-        case _ =>
-          -1 // :(
-      }
+    // also handle parsing errors
+    for {
+      s <- e.right
+      n <- json2Number(s).right
+    }  yield {
+      n
+    }
+  }
+
+  private def json2Number(s:String):Either[String,Long] = {
+    Json.parse(s) match {
+      case x:JsNumber =>
+        Right(x.value.toLong)
+      case _ =>
+        Left(s"$s is not a number")
     }
   }
 
@@ -83,14 +91,12 @@ class FilestoreClient extends PropertyLoader with Logging {
 
     // handle the Right[String] into a Right[Long]
     // won't execute if Left[String]
-    for ( s <- e.right ) yield {
-      val json = Json.parse(s)
-      json match {
-        case x:JsNumber =>
-          x.value.toLong
-        case _ =>
-          -1 // :(
-      }
+    // also handle parsing errors
+    for {
+      s <- e.right
+      n <- json2Number(s).right
+    }  yield {
+      n
     }
 
   }
@@ -111,13 +117,28 @@ class FilestoreClient extends PropertyLoader with Logging {
 
     // handle the Right[String] into a Right[List[String]]
     // won't execute if Left[String]
-    for (s <- e.right) yield {
-      val json = Json.parse(s)
-      json match {
-        case x:JsArray =>
-          x.value.map { v => v.toString()}.toList
-        case _ => Nil
-      }
+    for {
+      s <- e.right
+      l <- json2StringList(s).right
+    } yield {
+      l
+    }
+  }
+
+  private def json2StringList(s:String):Either[String,List[String]] = {
+    Json.parse(s) match {
+      case x:JsArray =>
+        x.value.foldLeft(Right(List.empty[String]): Either[String, List[String]]) {
+          case (Right(list), current) =>
+            Try(current.as[JsString].value) match {
+              case Success(int) => Right(list :+ int)
+              case Failure(err) => Left(err.getMessage)
+            }
+          case (Left(err), _) => Left(err)
+        }
+
+      case _ =>
+        Left(s"json $s is not an array of string")
     }
   }
 
