@@ -60,9 +60,9 @@ class FilestoreClient extends PropertyLoader with Logging {
     // also handle parsing errors
     for {
       s <- e.right
-      l <- json2Number(s)
+      n <- json2Number(s).right
     } yield {
-      l
+      n
     }
 
   }
