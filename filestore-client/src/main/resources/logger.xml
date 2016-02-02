@@ -37,7 +37,6 @@
     </appender>
 
     <logger name="com.sosacorp" level="info"/>
-    <logger name="filestore.controllers.api" level="info"/>
     <logger name="com.sosacorp.play.websockets" level="trace"/>
 
     <root level="info">

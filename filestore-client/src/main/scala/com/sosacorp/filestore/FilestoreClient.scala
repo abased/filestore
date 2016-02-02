@@ -1,8 +1,9 @@
 package com.sosacorp.filestore
 
 
-import java.io.{ByteArrayInputStream, InputStream}
+import java.io.{InputStream, OutputStream}
 
+import com.ning.http.client.Request.EntityWriter
 import com.sosacorp.logging.Logging
 import com.sosacorp.property.PropertyLoader
 import dispatch._
@@ -10,9 +11,8 @@ import org.apache.commons.io.IOUtils
 import play.api.libs.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.util.{Success, Failure, Try}
-import scala.concurrent._
+import scala.concurrent.{Future, _}
+import scala.util.{Failure, Success, Try}
 
 /**
  * Created by nickdeyoung on 9/28/15.
@@ -22,10 +22,20 @@ class FilestoreClient extends PropertyLoader with Logging {
   val filestoreHost = getPropertyReq("filestore.host")
   val filestorePort = getPropertyReq("filestore.port").toInt
 
+  implicit def InputStream2EntityWriter(in: InputStream): EntityWriter = new EntityWriter {
+    override def writeEntity(out: OutputStream): Unit = {
+      IOUtils.copy(in, out)
+      in.close()
+      out.close()
+    }
+  }
+
   def read(path: String): Future[Either[String, InputStream]] = {
     logger.info(s"Attempting to read the file at $path from the file store")
 
-    val req = Http(host(filestoreHost, filestorePort) / "api" / "read" <<? List(("path", path)) OK as.Bytes).either
+    val req = Http(host(filestoreHost, filestorePort) / "api" / "read" <<? List(("path", path)) OK {
+      _.getResponseBodyAsStream
+    }).either
 
     // handle the Left[Throwable] into a Left[String]
     // won't execute if Right[Array[Byte]]]
@@ -38,7 +48,7 @@ class FilestoreClient extends PropertyLoader with Logging {
     // handle the Right[Array[Byte]] into a Right[InputStream]
     // won't execute if Left[String]
     for (s <- e.right) yield {
-      new ByteArrayInputStream(s)
+      s
     }
   }
 
@@ -67,23 +77,10 @@ class FilestoreClient extends PropertyLoader with Logging {
 
   }
 
-  private def json2Number(s: String): Future[Either[String, Long]] = {
-    future {
-      Json.parse(s) match {
-        case x: JsNumber =>
-          Right(x.value.toLong)
-        case _ =>
-          Left(s"$s is not a number")
-      }
-    }
-  }
-
   def write(source: InputStream, dest: String): Future[Either[String, Long]] = {
-
     logger.info(s"Attempting to write the stream to $dest")
-    val ba = IOUtils.toByteArray(source)
 
-    val req = Http((host(filestoreHost, filestorePort) / "api" / "write" <<? List(("path", dest))).POST.setBody(ba) OK as.String).either
+    val req = Http((host(filestoreHost, filestorePort) / "api" / "write" <<? List(("path", dest))).POST.setBody(source) OK as.String).either
 
     // handle the Left[Throwable] into a Left[String]
     // won't execute if Right[String]
@@ -129,24 +126,6 @@ class FilestoreClient extends PropertyLoader with Logging {
     }
   }
 
-  private def json2StringList(s: String):Future[Either[String, List[String]]] = {
-    future {
-      Json.parse(s) match {
-        case x: JsArray =>
-          x.value.foldLeft(Right(List.empty[String]): Either[String, List[String]]) {
-            case (Right(list), current) =>
-              Try(current.as[JsString].value) match {
-                case Success(int) => Right(list :+ int)
-                case Failure(err) => Left(err.getMessage)
-              }
-            case (Left(err), _) => Left(err)
-          }
-
-        case _ =>
-          Left(s"json $s is not an array of string")
-      }
-    }
-  }
 
   def exists(path: String): Future[Either[String, Boolean]] = {
     logger.info(s"Attempting to see if file at $path exists in the file store")
@@ -173,4 +152,33 @@ class FilestoreClient extends PropertyLoader with Logging {
     }
   }
 
+  private def json2Number(s: String): Future[Either[String, Long]] = {
+    future {
+      Json.parse(s) match {
+        case x: JsNumber =>
+          Right(x.value.toLong)
+        case _ =>
+          Left(s"$s is not a number")
+      }
+    }
+  }
+
+  private def json2StringList(s: String): Future[Either[String, List[String]]] = {
+    future {
+      Json.parse(s) match {
+        case x: JsArray =>
+          x.value.foldLeft(Right(List.empty[String]): Either[String, List[String]]) {
+            case (Right(list), current) =>
+              Try(current.as[JsString].value) match {
+                case Success(int) => Right(list :+ int)
+                case Failure(err) => Left(err.getMessage)
+              }
+            case (Left(err), _) => Left(err)
+          }
+
+        case _ =>
+          Left(s"json $s is not an array of string")
+      }
+    }
+  }
 }

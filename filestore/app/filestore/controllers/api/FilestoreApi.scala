@@ -1,8 +1,9 @@
 package filestore.controllers.api
 
-import java.io.{FileInputStream, InputStream}
+import java.io.{File, FileInputStream, InputStream}
 
 import com.sosacorp.binder.Refs
+import com.sosacorp.logging.Logging
 import filestore.FileStore
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.json.Json
@@ -10,23 +11,25 @@ import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
-import scala.io.Source
 
 
 /**
  * Created by nickdeyoung on 9/28/15.
  */
-object FilestoreApi extends Controller {
+object FilestoreApi extends Controller with Logging {
 
   lazy val fileStore = Refs.refTo[FileStore]
 
   def read(path: String) = Action.async { implicit request =>
     future {
-      fileStore.read(path).map { stream =>
-        new SimpleResult(header = ResponseHeader(OK, Map()), body = Enumerator.fromStream(stream))
-      }.getOrElse {
-        BadRequest(s"cannot load path $path")
-      }
+      (for {
+        is <- fileStore.read(path)
+        length <- fileStore.size(path)
+      } yield {
+        new SimpleResult(header = ResponseHeader(OK, Map(CONTENT_LENGTH -> length.toString)), body = Enumerator.fromStream(is))
+      }).getOrElse(
+          BadRequest("cant read file at $path")
+        )
     }
   }
 
@@ -36,11 +39,10 @@ object FilestoreApi extends Controller {
     }
   }
 
-  def write(dest: String) = Action.async(parse.raw) { implicit request =>
+  def write(dest: String) = Action.async(parse.file(to = File.createTempFile("uploaded", ""))) { implicit request =>
     future {
-      val content = request.body
-      val file = content.asFile
-      lclWrite(new FileInputStream(file), dest)
+      logger.info(s"writing $dest")
+      lclWrite(new FileInputStream(request.body), dest)
       readSize(dest)
     }
   }
@@ -62,8 +64,9 @@ object FilestoreApi extends Controller {
   }
 
   private def readSize(path: String) = {
-    fileStore.read(path).map { stream =>
-      Ok(Json.toJson(Source.fromInputStream(stream).size))
+
+    fileStore.size(path).map { size =>
+      Ok(Json.toJson(size))
     }.getOrElse(BadRequest(s"cannot write file $path"))
   }
 
